@@ -43,7 +43,7 @@ export async function attendanceSummary(req, res, next) {
     const rows = users.map(u => {
       const a = byUser[u.id];
       return {
-        userId: u.id, name: u.fullName, team: u.teamTag, isOnline: u.isOnline,
+        id: a?.id || null, userId: u.id, name: u.fullName, team: u.teamTag, isOnline: u.isOnline,
         status: a?.status || 'ABSENT', clockIn: a?.clockIn || null, clockOut: a?.clockOut || null, isLate: a?.isLate || false
       };
     });

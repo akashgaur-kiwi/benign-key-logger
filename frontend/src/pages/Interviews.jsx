@@ -1,7 +1,7 @@
 import React from 'react';
 import { Download } from 'lucide-react';
 import api, { useApi, can } from '../lib/api.js';
-import { PageHeader, Card, Table, StatTile, Status, btnCls } from '../components/ui.jsx';
+import { PageHeader, Card, Table, StatTile, Status, DeleteButton, btnCls } from '../components/ui.jsx';
 import { IV_LABEL, fmtWhen } from '../lib/format.js';
 
 const TONE = {
@@ -53,7 +53,7 @@ export default function Interviews() {
               <h2 className="text-sm font-bold text-slate-800">Interview schedule</h2>
               <p className="text-[10px] text-slate-400">{new Date().toLocaleDateString([], { month: 'long', day: 'numeric', year: 'numeric' })}</p>
             </div>
-            <Table cols={['Time', 'Candidate & Role', 'Client & Round', 'Recruiter', 'Status']} empty={!data.schedule.length && 'No upcoming interviews.'}>
+            <Table cols={['Time', 'Candidate & Role', 'Client & Round', 'Recruiter', 'Status', '']} empty={!data.schedule.length && 'No upcoming interviews.'}>
               {data.schedule.map(i => (
                 <tr key={i.id} className="hover:bg-slate-50/70 transition">
                   <td className="py-3 px-4 font-mono font-bold text-slate-700">{fmtWhen(i.scheduledTime)}</td>
@@ -75,6 +75,9 @@ export default function Interviews() {
                     >
                       {Object.entries(IV_LABEL).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
                     </select>
+                  </td>
+                  <td className="py-3 px-4 text-right">
+                    <DeleteButton module="INTERVIEWS" url={`/interviews/${i.id}`} label={`interview with ${i.candidateName}`} onDone={reload} />
                   </td>
                 </tr>
               ))}

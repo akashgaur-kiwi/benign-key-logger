@@ -188,3 +188,14 @@ AggregateError [ECONNREFUSED]:
 5:49:52 AM [vite] hmr update /src/pages/AuthPages.jsx, /src/index.css
 5:52:19 AM [vite] hmr update /src/pages/AuthPages.jsx, /src/index.css
 5:52:25 AM [vite] hmr update /src/pages/AuthPages.jsx, /src/index.css
+6:16:53 AM [vite] hmr update /src/components/ui.jsx, /src/index.css
+6:16:53 AM [vite] hmr invalidate /src/components/ui.jsx Could not Fast Refresh (new export)
+6:16:53 AM [vite] hmr update /src/index.css, /src/pages/CommandCenter.jsx, /src/components/layout/Shell.jsx, /src/pages/Login.jsx, /src/pages/Interviews.jsx, /src/pages/Requirements.jsx, /src/pages/HrRecords.jsx, /src/pages/Employees.jsx, /src/pages/Recruiters.jsx, /src/pages/Attendance.jsx, /src/pages/AccountManagers.jsx, /src/pages/Leave.jsx, /src/pages/MyDashboard.jsx, /src/pages/Reports.jsx, /src/pages/BdmActivity.jsx, /src/pages/OutlookActivity.jsx, /src/pages/CallActivity.jsx, /src/pages/AuthPages.jsx, /src/pages/admin/Users.jsx, /src/pages/CandidatePipeline.jsx, /src/pages/admin/AuditLog.jsx, /src/pages/admin/Roles.jsx
+6:17:10 AM [vite] hmr update /src/pages/Requirements.jsx, /src/index.css
+6:17:10 AM [vite] hmr update /src/pages/CandidatePipeline.jsx, /src/index.css
+6:17:10 AM [vite] hmr update /src/pages/Interviews.jsx, /src/index.css
+6:17:10 AM [vite] hmr update /src/pages/Leave.jsx, /src/index.css
+6:17:10 AM [vite] hmr update /src/pages/Attendance.jsx, /src/index.css
+6:17:10 AM [vite] hmr update /src/pages/admin/Users.jsx, /src/index.css
+6:17:13 AM [vite] hmr update /src/components/layout/Shell.jsx, /src/index.css
+6:17:16 AM [vite] hmr update /src/components/layout/Shell.jsx, /src/index.css

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Search, UserPlus, Copy, Check } from 'lucide-react';
 import api, { useApi, can, getUser, errMsg } from '../../lib/api.js';
-import { PageHeader, Card, Table, Tabs, Status, Badge, Modal, inputCls, btnCls, ghostBtn } from '../../components/ui.jsx';
+import { PageHeader, Card, Table, Tabs, Status, Badge, Modal, DeleteButton, inputCls, btnCls, ghostBtn } from '../../components/ui.jsx';
 import PermissionMatrix from '../../components/PermissionMatrix.jsx';
 import { title, fmtWhen } from '../../lib/format.js';
 
@@ -95,6 +95,7 @@ export default function Users() {
                         {approver && u.status === 'REVOKED' && <button className={ghostBtn} onClick={() => act(u, 'reactivate', 'Reactivated')}>Reactivate</button>}
                         {editor && locked && <button className={ghostBtn} onClick={() => act(u, 'unlock', 'Unlocked')}>Unlock</button>}
                         {editor && <button className={ghostBtn} onClick={() => setEditing(u)}>Manage</button>}
+                        <DeleteButton module="USER_MANAGEMENT" url={`/users/${u.id}`} label={`user ${u.fullName} and all their data`} onDone={reload} />
                       </div>
                     )}
                   </td>

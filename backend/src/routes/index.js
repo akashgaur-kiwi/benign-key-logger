@@ -19,6 +19,7 @@ import {
 } from '../controllers/users.controller.js';
 import { catalog, listRoles, createRole, updateRole, deleteRole } from '../controllers/roles.controller.js';
 import { listAudit } from '../controllers/audit.controller.js';
+import { DELETABLE, deleteRecord, deleteUser, deleteNotification } from '../controllers/delete.controller.js';
 
 const r = Router();
 const UM = 'USER_MANAGEMENT';
@@ -105,5 +106,9 @@ r.post('/users/:id/reset-link', can(UM, 'EDIT'), adminResetLink);
 r.put('/users/:id/permissions', can(UM, 'EDIT'), setUserPermissions);
 
 r.get('/audit-logs', can('AUDIT_LOG', 'VIEW'), listAudit);
+
+for (const [kind, t] of Object.entries(DELETABLE)) r.delete(`/${kind}/:id`, can(t.module, 'DELETE'), deleteRecord(kind));
+r.delete('/users/:id', can(UM, 'DELETE'), deleteUser);
+r.delete('/notifications/:id', deleteNotification);
 
 export default r;

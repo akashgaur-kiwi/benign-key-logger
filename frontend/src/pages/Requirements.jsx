@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Plus, Search } from 'lucide-react';
 import api, { useApi, can } from '../lib/api.js';
-import { PageHeader, Card, Table, Tabs, Status, Modal, inputCls, btnCls } from '../components/ui.jsx';
+import { PageHeader, Card, Table, Tabs, Status, Modal, DeleteButton, inputCls, btnCls } from '../components/ui.jsx';
 import { title } from '../lib/format.js';
 
 const PRI_TONE = { CRITICAL: 'bg-rose-50 text-rose-700', HOT: 'bg-amber-50 text-amber-700', NORMAL: 'bg-slate-100 text-slate-600' };
@@ -43,7 +43,7 @@ export default function Requirements() {
         </div>
         <Status error={error} loading={!data && !error} />
         {data && (
-          <Table cols={['Requirement', 'Client', 'Account manager', 'Priority', 'Age', 'Positions', 'Recruiters', 'Submissions', 'Status']} empty={!data.length && 'No requirements found.'}>
+          <Table cols={['Requirement', 'Client', 'Account manager', 'Priority', 'Age', 'Positions', 'Recruiters', 'Submissions', 'Status', '']} empty={!data.length && 'No requirements found.'}>
             {data.map(r => (
               <tr key={r.id} className="hover:bg-slate-50/70 transition">
                 <td className="py-3 px-4 font-bold text-slate-900">{r.jobTitle}</td>
@@ -58,6 +58,9 @@ export default function Requirements() {
                 <td className="py-3 px-4 text-slate-800">{r._count.submissions}</td>
                 <td className="py-3 px-4">
                   <Pill value={r.status} opts={['OPEN', 'HOLD', 'CLOSED']} tone={ST_TONE} onChange={v => setField(r.id, { status: v })} />
+                </td>
+                <td className="py-3 px-4 text-right">
+                  <DeleteButton module="REQUIREMENTS" url={`/requirements/${r.id}`} label={`requirement "${r.jobTitle}" and all its candidates/interviews`} onDone={reload} />
                 </td>
               </tr>
             ))}

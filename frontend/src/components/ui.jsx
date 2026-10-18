@@ -1,4 +1,25 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { Trash2 } from 'lucide-react';
+import api, { can, errMsg } from '../lib/api.js';
+
+// Confirm-then-DELETE icon button; hidden unless the user holds MODULE:DELETE.
+export function DeleteButton({ module, url, label = 'this record', onDone }) {
+  const [busy, setBusy] = useState(false);
+  if (!can(module, 'DELETE')) return null;
+  const run = async () => {
+    if (!window.confirm(`Delete ${label}? This cannot be undone.`)) return;
+    setBusy(true);
+    try { await api.delete(url); onDone?.(); }
+    catch (e) { window.alert(errMsg(e)); }
+    finally { setBusy(false); }
+  };
+  return (
+    <button type="button" onClick={run} disabled={busy} title={`Delete ${label}`}
+      className="p-1 rounded-md text-slate-400 hover:text-rose-600 hover:bg-rose-50 disabled:opacity-50">
+      <Trash2 size={14} />
+    </button>
+  );
+}
 
 export function PageHeader({ eyebrow, title, sub, children }) {
   return (

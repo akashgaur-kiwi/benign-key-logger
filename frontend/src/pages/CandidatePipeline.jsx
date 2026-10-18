@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Plus, Search } from 'lucide-react';
 import api, { useApi, can } from '../lib/api.js';
-import { PageHeader, Card, Table, Tabs, Status, Modal, inputCls, btnCls } from '../components/ui.jsx';
+import { PageHeader, Card, Table, Tabs, Status, Modal, DeleteButton, inputCls, btnCls } from '../components/ui.jsx';
 import { STAGE_LABEL, fmtWhen } from '../lib/format.js';
 
 const TONE = {
@@ -39,7 +39,7 @@ export default function CandidatePipeline() {
         </div>
         <Status error={error} loading={!data && !error} />
         {data && (
-          <Table cols={['Candidate', 'Requirement', 'Client', 'Stage', 'Owner', 'Next action']} empty={!data.length && 'No candidates found.'}>
+          <Table cols={['Candidate', 'Requirement', 'Client', 'Stage', 'Owner', 'Next action', '']} empty={!data.length && 'No candidates found.'}>
             {data.map(c => (
               <tr key={c.id} className="hover:bg-slate-50/70 transition">
                 <td className="py-3 px-4 font-bold text-slate-900">{c.candidateName}</td>
@@ -57,6 +57,9 @@ export default function CandidatePipeline() {
                 </td>
                 <td className="py-3 px-4 text-slate-600">{c.recruiter.fullName}</td>
                 <td className="py-3 px-4 font-semibold text-slate-800">{c.nextAction || fmtWhen(c.actionDueDate)}</td>
+                <td className="py-3 px-4 text-right">
+                  <DeleteButton module="PIPELINE" url={`/pipeline/${c.id}`} label={`candidate "${c.candidateName}"`} onDone={reload} />
+                </td>
               </tr>
             ))}
           </Table>

@@ -1,6 +1,6 @@
 import React from 'react';
 import api, { useApi, can } from '../lib/api.js';
-import { PageHeader, Card, Table, StatTile, Status } from '../components/ui.jsx';
+import { PageHeader, Card, Table, StatTile, Status, DeleteButton } from '../components/ui.jsx';
 import { fmtTime, title } from '../lib/format.js';
 
 const TONE = {
@@ -42,7 +42,7 @@ export default function Attendance() {
             <StatTile label="Absent" value={data.breakdown.ABSENT} tone="text-rose-600" />
           </div>
           <Card className="overflow-hidden">
-            <Table cols={['Employee', 'Team', 'Clock in', 'Last activity', 'Online', 'Status']}>
+            <Table cols={['Employee', 'Team', 'Clock in', 'Last activity', 'Online', 'Status', '']}>
               {data.rows.map(r => (
                 <tr key={r.userId} className="hover:bg-slate-50/70 transition">
                   <td className="py-3 px-4 font-bold text-slate-900">{r.name}</td>
@@ -55,6 +55,9 @@ export default function Attendance() {
                       className={`px-1.5 py-0.5 rounded text-[10px] font-bold border-0 cursor-pointer ${TONE[r.status]}`}>
                       {Object.keys(TONE).map(s => <option key={s} value={s}>{title(s)}</option>)}
                     </select>
+                  </td>
+                  <td className="py-3 px-4 text-right">
+                    {r.id && <DeleteButton module="ATTENDANCE" url={`/attendance/${r.id}`} label={`today's attendance for ${r.name}`} onDone={reload} />}
                   </td>
                 </tr>
               ))}

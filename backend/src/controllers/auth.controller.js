@@ -140,9 +140,11 @@ export async function forgotPassword(req, res, next) {
     let link;
     if (u && u.status === 'ACTIVE') link = await issueToken(u.id, 'RESET', 1);
     // Same response whether or not the account exists; link only exposed outside production
+    // (or when EXPOSE_RESET_LINKS=true, while email delivery isn't wired up)
+    const expose = process.env.NODE_ENV !== 'production' || process.env.EXPOSE_RESET_LINKS === 'true';
     res.json({
       ok: true, message: 'If that account exists, a reset link has been issued.',
-      ...(process.env.NODE_ENV !== 'production' && link ? { link } : {})
+      ...(expose && link ? { link } : {})
     });
   } catch (e) {
     next(e);

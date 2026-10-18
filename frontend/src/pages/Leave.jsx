@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import api, { useApi, can, errMsg } from '../lib/api.js';
-import { PageHeader, Card, Table, StatTile, Status, Badge, Modal, Tabs, inputCls, btnCls, ghostBtn } from '../components/ui.jsx';
+import { PageHeader, Card, Table, StatTile, Status, Badge, Modal, Tabs, DeleteButton, inputCls, btnCls, ghostBtn } from '../components/ui.jsx';
 import { fmtDate, title } from '../lib/format.js';
 
 const TYPES = ['CASUAL', 'SICK', 'EMERGENCY', 'UNPAID'];
@@ -119,6 +119,9 @@ export default function Leave() {
                     {['PENDING', 'APPROVED'].includes(r.status) && (isOwn || canApprove) && (
                       <button className={ghostBtn + ' ml-1.5'} onClick={() => cancel(r.id)}>Cancel</button>
                     )}
+                    <span className="inline-flex align-middle ml-1.5">
+                      <DeleteButton module="LEAVE" url={`/leaves/${r.id}`} label={`${r.user.fullName}'s leave request`} onDone={refresh} />
+                    </span>
                   </td>
                 </tr>
               );

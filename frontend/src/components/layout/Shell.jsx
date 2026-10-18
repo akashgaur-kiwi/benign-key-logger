@@ -132,6 +132,7 @@ function NotificationBell() {
     if (n.link) nav(n.link);
   };
   const markAll = async () => { await api.post('/notifications/read-all').catch(() => {}); load(); };
+  const remove = async (e, n) => { e.stopPropagation(); await api.delete(`/notifications/${n.id}`).catch(() => {}); load(); };
 
   return (
     <div className="relative" ref={ref}>
@@ -156,11 +157,13 @@ function NotificationBell() {
                 className={`w-full text-left px-4 py-2.5 hover:bg-slate-50 transition ${n.readAt ? '' : 'bg-blue-50/40'}`}>
                 <div className="flex items-start gap-2">
                   {!n.readAt && <span className="mt-1 w-1.5 h-1.5 rounded-full bg-blue-500 shrink-0" />}
-                  <div className="min-w-0">
+                  <div className="min-w-0 flex-1">
                     <div className="text-xs font-semibold text-slate-800">{n.title}</div>
                     {n.body && <div className="text-[11px] text-slate-500 mt-0.5">{n.body}</div>}
                     <div className="text-[10px] text-slate-400 mt-0.5">{fmtWhen(n.createdAt)}</div>
                   </div>
+                  <span role="button" title="Delete notification" onClick={e => remove(e, n)}
+                    className="text-slate-300 hover:text-rose-600 text-sm leading-none px-1">×</span>
                 </div>
               </button>
             ))}
