@@ -1,0 +1,3 @@
+ACCOUNT=301431062239 REGION=ap-south-1 IID=i-081a686e753f66b28 SG=sg-043fe214fcfa7a2b1 EIP=eipalloc-06b617ba1b414cede IP=13.126.242.107
+CF_ID=EEOYJEXHJMP9O CF_DOMAIN=d2ohltwl101l45.cloudfront.net
+AMPLIFY_APP=d1ju0vllhpo1q4 URL=https://main.d1ju0vllhpo1q4.amplifyapp.com

@@ -1,0 +1,190 @@
+===== started 2026-09-29 02:44:12 =====
+
+> worknovas-frontend@1.0.0 dev
+> vite
+
+/Users/kiwitech/Documents/Recruitment/frontend/node_modules/rollup/dist/native.js:121
+		throw new Error(
+		      ^
+
+Error: Cannot find module @rollup/rollup-darwin-arm64. npm has a bug related to optional dependencies (https://github.com/npm/cli/issues/4828). Please try `npm i` again after removing both package-lock.json and node_modules directory.
+    at requireWithFriendlyError (/Users/kiwitech/Documents/Recruitment/frontend/node_modules/rollup/dist/native.js:121:9)
+    at Object.<anonymous> (/Users/kiwitech/Documents/Recruitment/frontend/node_modules/rollup/dist/native.js:130:22)
+    ... 3 lines matching cause stack trace ...
+    at Module._load (node:internal/modules/cjs/loader:1091:12)
+    at cjsLoader (node:internal/modules/esm/translators:298:15)
+    at ModuleWrap.<anonymous> (node:internal/modules/esm/translators:240:7)
+    at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:606:24) {
+  [cause]: Error: Cannot find module '@rollup/rollup-darwin-arm64'
+  Require stack:
+  - /Users/kiwitech/Documents/Recruitment/frontend/node_modules/rollup/dist/native.js
+      at Module._resolveFilename (node:internal/modules/cjs/loader:1207:15)
+      at Module._load (node:internal/modules/cjs/loader:1038:27)
+      at Module.require (node:internal/modules/cjs/loader:1289:19)
+      at require (node:internal/modules/helpers:182:18)
+      at requireWithFriendlyError (/Users/kiwitech/Documents/Recruitment/frontend/node_modules/rollup/dist/native.js:103:10)
+      at Object.<anonymous> (/Users/kiwitech/Documents/Recruitment/frontend/node_modules/rollup/dist/native.js:130:22)
+      at Module._compile (node:internal/modules/cjs/loader:1521:14)
+      at Module._extensions..js (node:internal/modules/cjs/loader:1623:10)
+      at Module.load (node:internal/modules/cjs/loader:1266:32)
+      at Module._load (node:internal/modules/cjs/loader:1091:12) {
+    code: 'MODULE_NOT_FOUND',
+    requireStack: [
+      '/Users/kiwitech/Documents/Recruitment/frontend/node_modules/rollup/dist/native.js'
+    ]
+  }
+}
+
+Node.js v20.19.6
+===== started 2026-09-29 02:46:56 =====
+
+> worknovas-frontend@1.0.0 dev
+> vite
+
+
+  VITE v5.4.21  ready in 1378 ms
+
+  ➜  Local:   http://localhost:5173/
+  ➜  Network: use --host to expose
+3:17:18 AM [vite] hmr update /src/index.css, /src/components/layout/Shell.jsx, /src/pages/CommandCenter.jsx, /src/pages/Requirements.jsx, /src/pages/Interviews.jsx, /src/pages/Recruiters.jsx, /src/pages/Employees.jsx, /src/pages/CandidatePipeline.jsx, /src/pages/OutlookActivity.jsx, /src/pages/CallActivity.jsx, /src/pages/AccountManagers.jsx, /src/pages/Attendance.jsx, /src/pages/HrRecords.jsx, /src/pages/Login.jsx
+3:17:33 AM [vite] hmr update /src/pages/Requirements.jsx, /src/index.css
+3:17:33 AM [vite] hmr update /src/pages/CandidatePipeline.jsx, /src/index.css
+3:17:33 AM [vite] hmr update /src/pages/Interviews.jsx, /src/index.css
+3:17:33 AM [vite] hmr update /src/pages/Attendance.jsx, /src/index.css
+3:17:33 AM [vite] hmr update /src/pages/CommandCenter.jsx, /src/index.css
+3:17:37 AM [vite] hmr update /src/pages/Attendance.jsx, /src/index.css
+3:17:37 AM [vite] hmr update /src/pages/Interviews.jsx, /src/index.css
+3:17:37 AM [vite] hmr update /src/pages/CommandCenter.jsx, /src/index.css
+3:17:48 AM [vite] hmr update /src/index.css, /src/components/layout/Shell.jsx, /src/pages/CommandCenter.jsx, /src/pages/Requirements.jsx, /src/pages/Interviews.jsx, /src/pages/Recruiters.jsx, /src/pages/Employees.jsx, /src/pages/CandidatePipeline.jsx, /src/pages/OutlookActivity.jsx, /src/pages/CallActivity.jsx, /src/pages/AccountManagers.jsx, /src/pages/Attendance.jsx, /src/pages/HrRecords.jsx, /src/pages/Login.jsx
+3:18:03 AM [vite] hmr update /src/components/layout/Shell.jsx, /src/index.css
+3:18:25 AM [vite] hmr update /src/pages/Login.jsx, /src/index.css
+3:18:37 AM [vite] hmr update /src/components/ui.jsx, /src/index.css
+3:18:37 AM [vite] hmr invalidate /src/components/ui.jsx Could not Fast Refresh (new export)
+3:18:37 AM [vite] hmr update /src/index.css, /src/pages/CommandCenter.jsx, /src/pages/Requirements.jsx, /src/pages/Interviews.jsx, /src/pages/Recruiters.jsx, /src/pages/Employees.jsx, /src/pages/CandidatePipeline.jsx, /src/pages/OutlookActivity.jsx, /src/pages/CallActivity.jsx, /src/pages/AccountManagers.jsx, /src/pages/Attendance.jsx, /src/pages/HrRecords.jsx, /src/pages/Login.jsx, /src/components/layout/Shell.jsx, /src/pages/AuthPages.jsx
+3:20:26 AM [vite] hmr update /src/App.jsx, /src/index.css
+===== started 2026-09-29 05:06:18 =====
+
+> worknovas-frontend@1.0.0 dev
+> vite
+
+error when starting dev server:
+TypeError: crypto$2.getRandomValues is not a function
+    at resolveConfig (file:///Users/kiwitech/Documents/Recruitment/frontend/node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:66671:16)
+    at async _createServer (file:///Users/kiwitech/Documents/Recruitment/frontend/node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:63015:18)
+    at async CAC.<anonymous> (file:///Users/kiwitech/Documents/Recruitment/frontend/node_modules/vite/dist/node/cli.js:736:20)
+===== started 2026-09-29 05:10:19 =====
+
+> worknovas-frontend@1.0.0 dev
+> vite
+
+
+  VITE v5.4.21  ready in 2915 ms
+
+  ➜  Local:   http://localhost:5173/
+  ➜  Network: use --host to expose
+===== started 2026-09-29 05:13:48 =====
+
+> worknovas-frontend@1.0.0 dev
+> vite
+
+error when starting dev server:
+TypeError: crypto$2.getRandomValues is not a function
+    at resolveConfig (file:///Users/kiwitech/Documents/Recruitment/frontend/node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:66671:16)
+    at async _createServer (file:///Users/kiwitech/Documents/Recruitment/frontend/node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:63015:18)
+    at async CAC.<anonymous> (file:///Users/kiwitech/Documents/Recruitment/frontend/node_modules/vite/dist/node/cli.js:736:20)
+===== started 2026-09-29 05:14:48 =====
+
+> worknovas-frontend@1.0.0 dev
+> vite
+
+===== started 2026-09-29 05:15:00 =====
+
+> worknovas-frontend@1.0.0 dev
+> vite
+
+
+  VITE v5.4.21  ready in 5246 ms
+
+  ➜  Local:   http://localhost:5173/
+  ➜  Network: use --host to expose
+===== started 2026-09-29 05:15:28 =====
+
+> worknovas-frontend@1.0.0 dev
+> vite
+
+
+  VITE v5.4.21  ready in 2927 ms
+
+  ➜  Local:   http://localhost:5173/
+  ➜  Network: use --host to expose
+5:51:05 AM [vite] hmr update /src/pages/admin/AuditLog.jsx, /src/index.css
+===== started 2026-09-29 10:46:31 =====
+
+> worknovas-frontend@1.0.0 dev
+> vite
+
+
+  VITE v5.4.21  ready in 630 ms
+
+  ➜  Local:   http://localhost:5173/
+  ➜  Network: use --host to expose
+===== started 2026-09-30 03:57:21 =====
+
+> worknovas-frontend@1.0.0 dev
+> vite
+
+
+  VITE v5.4.21  ready in 966 ms
+
+  ➜  Local:   http://localhost:5173/
+  ➜  Network: use --host to expose
+===== started 2026-09-30 17:33:04 =====
+
+> worknovas-frontend@1.0.0 dev
+> vite
+
+
+  VITE v5.4.21  ready in 4028 ms
+
+  ➜  Local:   http://localhost:5173/
+  ➜  Network: use --host to expose
+===== started 2026-10-18 05:19:21 =====
+
+> worknovas-frontend@1.0.0 dev
+> vite
+
+
+  VITE v5.4.21  ready in 16264 ms
+
+  ➜  Local:   http://localhost:5173/
+  ➜  Network: use --host to expose
+5:29:09 AM [vite] hmr update /src/App.jsx, /src/index.css, /src/pages/Employees.jsx, /src/pages/Interviews.jsx, /src/pages/CandidatePipeline.jsx, /src/pages/Recruiters.jsx, /src/pages/CommandCenter.jsx, /src/pages/Requirements.jsx, /src/pages/AccountManagers.jsx, /src/components/layout/Shell.jsx, /src/pages/Attendance.jsx, /src/pages/MyDashboard.jsx, /src/pages/BdmActivity.jsx, /src/pages/admin/Roles.jsx, /src/pages/OutlookActivity.jsx, /src/pages/AuthPages.jsx, /src/pages/HrRecords.jsx, /src/pages/Leave.jsx, /src/pages/admin/Users.jsx, /src/pages/Reports.jsx, /src/pages/CallActivity.jsx, /src/pages/Login.jsx, /src/pages/admin/AuditLog.jsx
+5:29:15 AM [vite] hmr update /src/pages/Login.jsx, /src/index.css
+5:29:20 AM [vite] hmr update /src/pages/Login.jsx, /src/index.css
+5:42:08 AM [vite] http proxy error: /api/v1/auth/login
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1139:18)
+    at afterConnectMultiple (node:net:1712:7)
+===== started 2026-10-18 05:42:57 =====
+
+> worknovas-frontend@1.0.0 dev
+> vite
+
+
+  VITE v5.4.21  ready in 2298 ms
+
+  ➜  Local:   http://localhost:5173/
+  ➜  Network: use --host to expose
+5:49:16 AM [vite] http proxy error: /api/v1/notifications
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1139:18)
+    at afterConnectMultiple (node:net:1712:7)
+5:49:39 AM [vite] hmr update /src/pages/AuthPages.jsx, /src/index.css
+5:49:40 AM [vite] hmr update /src/pages/AuthPages.jsx, /src/index.css
+5:49:41 AM [vite] hmr update /src/pages/AuthPages.jsx, /src/index.css
+5:49:45 AM [vite] hmr update /src/pages/AuthPages.jsx, /src/index.css
+5:49:48 AM [vite] hmr update /src/pages/AuthPages.jsx, /src/index.css
+5:49:52 AM [vite] hmr update /src/pages/AuthPages.jsx, /src/index.css
+5:52:19 AM [vite] hmr update /src/pages/AuthPages.jsx, /src/index.css
+5:52:25 AM [vite] hmr update /src/pages/AuthPages.jsx, /src/index.css

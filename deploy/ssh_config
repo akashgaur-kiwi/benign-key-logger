@@ -1,0 +1,6 @@
+Host wn
+  HostName 13.126.242.107
+  User ec2-user
+  IdentityFile /Users/kiwitech/Documents/Recruitment/deploy/worknovas-key.pem
+  StrictHostKeyChecking accept-new
+  ConnectTimeout 10

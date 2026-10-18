@@ -1,0 +1,479 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "darwin", "darwin-arm64"]
+}
+
+enum Role {
+  OWNER_ADMIN
+  ACCOUNT_MANAGER
+  RECRUITER
+  HR_ADMIN
+}
+
+enum Priority {
+  NORMAL
+  HOT
+  CRITICAL
+}
+
+enum ReqStatus {
+  OPEN
+  HOLD
+  CLOSED
+}
+
+enum PipelineStage {
+  SOURCED
+  SCREENED
+  TIER1_SUBMITTED
+  CLIENT_SUBMITTED
+  INTERVIEW
+  OFFER
+  START
+  REJECTED
+}
+
+enum AttendanceStatus {
+  PRESENT
+  ABSENT
+  HALF_DAY
+  LATE
+  ON_LEAVE
+}
+
+enum CallOutcome {
+  CONNECTED
+  NO_ANSWER
+  VOICEMAIL
+  FAILED
+}
+
+enum InterviewStatus {
+  CONFIRMED
+  SCHEDULED
+  AWAITING_CONFIRMATION
+  FEEDBACK_PENDING
+  COMPLETED
+  CANCELLED
+}
+
+enum UserStatus {
+  INVITED
+  PENDING_APPROVAL
+  ACTIVE
+  SUSPENDED
+  REVOKED
+}
+
+enum PermAction {
+  VIEW
+  CREATE
+  EDIT
+  DELETE
+  EXPORT
+  APPROVE
+}
+
+enum PermScope {
+  OWN
+  TEAM
+  ALL
+}
+
+enum AuthTokenType {
+  INVITE
+  RESET
+}
+
+enum AppAction {
+  APP_OPENED
+  APP_CLOSED
+  WINDOW_FOCUSED
+}
+
+enum LeaveType {
+  CASUAL
+  SICK
+  EMERGENCY
+  UNPAID
+}
+
+enum LeaveStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
+enum NotificationType {
+  LATE_LOGIN
+  LEAVE_APPROVED
+  LEAVE_REJECTED
+  LEAVE_REQUESTED
+  EMPLOYEE_ADDED
+  EMPLOYEE_EXIT
+  ANNOUNCEMENT
+}
+
+enum ClientInteractionType {
+  CALL
+  MEETING
+  NEW_CLIENT
+}
+
+model User {
+  id                String                @id @default(uuid())
+  email             String                @unique
+  passwordHash      String
+  fullName          String
+  role              Role
+  designation       String?
+  phone             String?
+  dateOfJoining     DateTime?             @db.Date
+  dateOfExit        DateTime?             @db.Date
+  department        String                @default("Recruitment")
+  managerId         String?
+  manager           User?                 @relation("ManagementHierarchy", fields: [managerId], references: [id])
+  subordinates      User[]                @relation("ManagementHierarchy")
+  employeeCode      String?               @unique
+  teamTag           String?
+  isActive          Boolean               @default(true)
+  status            UserStatus            @default(ACTIVE)
+  appRoleId         String?
+  appRole           AppRole?              @relation(fields: [appRoleId], references: [id])
+  accessExpiresAt   DateTime?
+  tokenVersion      Int                   @default(0)
+  lastLoginAt       DateTime?
+  failedLogins      Int                   @default(0)
+  lockedUntil       DateTime?
+  approvedById      String?
+  approvedAt        DateTime?
+  invitedById       String?
+  isOnline          Boolean               @default(false)
+  productivityScore Int                   @default(0)
+  createdAt         DateTime              @default(now())
+  updatedAt         DateTime              @updatedAt
+
+  managedReqs   Requirement[]         @relation("AccountManagerReqs")
+  assignedReqs  RequirementAssignee[]
+  submissions   Submission[]
+  attendances   Attendance[]
+  callLogs      CallLog[]
+  emailLogs     EmailLog[]
+  ceipalLogs    CeipalLog[]
+  linkedInLogs  LinkedInLog[]
+  desktopEvents AppLifecycleEvent[]
+  desktopUsage  AppUsageSummary[]
+  interviews    Interview[]
+  permOverrides UserPermission[]
+  authTokens    AuthToken[]
+  auditLogs     AuditLog[]
+  leaveRequests LeaveRequest[]        @relation("LeaveRequester")
+  leaveDecisions LeaveRequest[]       @relation("LeaveDecider")
+  notifications Notification[]
+  clientInteractions ClientInteraction[]
+}
+
+model AppRole {
+  id          String           @id @default(uuid())
+  name        String           @unique
+  description String?
+  isSystem    Boolean          @default(false)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  permissions RolePermission[]
+  users       User[]
+}
+
+model RolePermission {
+  id     String     @id @default(uuid())
+  roleId String
+  module String
+  action PermAction
+  scope  PermScope  @default(ALL)
+  role   AppRole    @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@unique([roleId, module, action])
+}
+
+model UserPermission {
+  id     String     @id @default(uuid())
+  userId String
+  module String
+  action PermAction
+  scope  PermScope  @default(ALL)
+  allow  Boolean    @default(true)
+  user   User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, module, action])
+}
+
+model AuthToken {
+  id        String        @id @default(uuid())
+  userId    String
+  type      AuthTokenType
+  tokenHash String        @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime      @default(now())
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  actorId   String?
+  actor     User?    @relation(fields: [actorId], references: [id], onDelete: SetNull)
+  action    String
+  entity    String
+  entityId  String?
+  before    Json?
+  after     Json?
+  ip        String?
+  createdAt DateTime @default(now())
+
+  @@index([entity, entityId])
+  @@index([actorId, createdAt])
+  @@index([createdAt])
+}
+
+model Requirement {
+  id               String    @id @default(uuid())
+  jobTitle         String
+  clientName       String
+  accountManagerId String
+  accountManager   User      @relation("AccountManagerReqs", fields: [accountManagerId], references: [id])
+  priority         Priority  @default(NORMAL)
+  status           ReqStatus @default(OPEN)
+  openPositions    Int       @default(1)
+  receivedAt       DateTime  @default(now())
+  ageInDays        Int       @default(0)
+  description      String?   @db.Text
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  assignees   RequirementAssignee[]
+  submissions Submission[]
+  interviews  Interview[]
+
+  @@index([status, priority])
+}
+
+model RequirementAssignee {
+  id            String   @id @default(uuid())
+  requirementId String
+  recruiterId   String
+  assignedAt    DateTime @default(now())
+
+  requirement Requirement @relation(fields: [requirementId], references: [id], onDelete: Cascade)
+  recruiter   User        @relation(fields: [recruiterId], references: [id], onDelete: Cascade)
+
+  @@unique([requirementId, recruiterId])
+}
+
+model Submission {
+  id             String        @id @default(uuid())
+  requirementId  String
+  recruiterId    String
+  candidateName  String
+  candidateEmail String?
+  candidatePhone String?
+  ceipalResumeId String?
+  currentStage   PipelineStage @default(SOURCED)
+  nextAction     String?
+  actionDueDate  DateTime?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  requirement Requirement     @relation(fields: [requirementId], references: [id], onDelete: Cascade)
+  recruiter   User            @relation(fields: [recruiterId], references: [id], onDelete: Cascade)
+  interviews  Interview[]
+  events      PipelineEvent[]
+
+  @@index([requirementId, recruiterId, currentStage])
+}
+
+model PipelineEvent {
+  id           String        @id @default(uuid())
+  submissionId String
+  stage        PipelineStage
+  notes        String?
+  timestamp    DateTime      @default(now())
+
+  submission Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+}
+
+model Interview {
+  id            String          @id @default(uuid())
+  submissionId  String
+  requirementId String
+  recruiterId   String
+  candidateName String
+  jobTitle      String
+  clientName    String
+  roundType     String
+  scheduledTime DateTime
+  status        InterviewStatus @default(SCHEDULED)
+  feedbackDue   Boolean         @default(false)
+  createdAt     DateTime        @default(now())
+
+  submission  Submission  @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  requirement Requirement @relation(fields: [requirementId], references: [id], onDelete: Cascade)
+  recruiter   User        @relation(fields: [recruiterId], references: [id], onDelete: Cascade)
+}
+
+model CallLog {
+  id           String      @id @default(uuid())
+  userId       String
+  targetNumber String
+  durationSec  Int
+  outcome      CallOutcome
+  timestamp    DateTime    @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, timestamp])
+}
+
+model EmailLog {
+  id        String   @id @default(uuid())
+  userId    String
+  messageId String   @unique
+  recipient String
+  category  String
+  timestamp DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, timestamp])
+}
+
+model CeipalLog {
+  id           String   @id @default(uuid())
+  userId       String
+  ceipalCandId String
+  resumeUrl    String?
+  actionType   String
+  timestamp    DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, timestamp])
+}
+
+model LinkedInLog {
+  id        String   @id @default(uuid())
+  userId    String
+  postUrl   String?
+  postType  String
+  timestamp DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, timestamp])
+}
+
+model AppLifecycleEvent {
+  id          String    @id @default(uuid())
+  userId      String
+  appName     String
+  windowTitle String?
+  action      AppAction
+  timestamp   DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, timestamp])
+}
+
+model AppUsageSummary {
+  id          String   @id @default(uuid())
+  userId      String
+  appName     String
+  durationSec Int      @default(0)
+  idleSec     Int      @default(0)
+  date        DateTime @db.Date
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, appName, date])
+}
+
+model Attendance {
+  id       String           @id @default(uuid())
+  userId   String
+  date     DateTime         @db.Date
+  clockIn  DateTime?
+  clockOut DateTime?
+  status   AttendanceStatus @default(PRESENT)
+  isLate   Boolean          @default(false)
+  notes    String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date])
+}
+
+model LeaveRequest {
+  id         String      @id @default(uuid())
+  userId     String
+  type       LeaveType
+  startDate  DateTime    @db.Date
+  endDate    DateTime    @db.Date
+  days       Int
+  reason     String?
+  status     LeaveStatus @default(PENDING)
+  decidedById String?
+  decidedAt  DateTime?
+  decisionNote String?
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+
+  user      User  @relation("LeaveRequester", fields: [userId], references: [id], onDelete: Cascade)
+  decidedBy User? @relation("LeaveDecider", fields: [decidedById], references: [id], onDelete: SetNull)
+
+  @@index([userId, status])
+  @@index([status, startDate])
+}
+
+model Notification {
+  id        String           @id @default(uuid())
+  userId    String
+  type      NotificationType
+  title     String
+  body      String?
+  link      String?
+  readAt    DateTime?
+  createdAt DateTime         @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, readAt])
+  @@index([userId, createdAt])
+}
+
+model ClientInteraction {
+  id         String                @id @default(uuid())
+  userId     String
+  clientName String
+  type       ClientInteractionType
+  notes      String?
+  timestamp  DateTime              @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, timestamp])
+}
+
+model ClientActionPending {
+  id           String   @id @default(uuid())
+  clientName   String
+  actionType   String
+  candidateRef String?
+  dueInHours   Int
+  createdAt    DateTime @default(now())
+}

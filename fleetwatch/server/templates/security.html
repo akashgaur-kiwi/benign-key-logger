@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Security events — FleetWatch{% endblock %}
+{% block body %}
+<div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+  <h2 style="margin:0">Security events — last {{ days }} days</h2>
+  <a class="pill" href="/export/security.csv?days={{ days }}" style="text-decoration:none">⭳ Export CSV</a>
+  <span class="meta">USB drives and file copies to USB / cloud-sync folders</span>
+</div>
+
+{% set icon = {'usb_insert':'🔌 USB inserted','usb_remove':'⏏ USB removed',
+               'file_to_usb':'📤 File → USB','file_to_cloud':'☁ File → cloud'} %}
+{% set color = {'usb_insert':'#fbbf24','usb_remove':'#6b7280',
+                'file_to_usb':'#f87171','file_to_cloud':'#f87171'} %}
+<table style="margin-top:16px">
+  <tr><th>Time (UTC)</th><th>Machine</th><th>User</th><th>Event</th><th>Detail</th></tr>
+  {% for r in rows %}
+  <tr>
+    <td>{{ r.ts[:19].replace('T',' ') }}</td>
+    <td>{{ r.hostname }}</td>
+    <td>{{ r.username }}</td>
+    <td style="color:{{ color.get(r.kind,'#e4e8ee') }}">{{ icon.get(r.kind, r.kind) }}</td>
+    <td class="meta">{{ r.detail }}</td>
+  </tr>
+  {% endfor %}
+  {% if not rows %}<tr><td colspan="5" class="meta">No security events recorded.</td></tr>{% endif %}
+</table>
+{% endblock %}

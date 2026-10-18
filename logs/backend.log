@@ -1,0 +1,329 @@
+===== started 2026-09-29 02:44:12 =====
+
+> worknovas-backend@1.0.0 dev
+> node --watch server.js
+
+API on :4000
+/Users/kiwitech/Documents/Recruitment/backend/node_modules/@prisma/client/runtime/library.js:64
+${er(e)}`}var Gm=N("prisma:client:engines:resolveEnginePath"),Qm=()=>new RegExp("runtime[\\\\/]library\\.m?js$");async function ml(e,r){let t={binary:process.env.PRISMA_QUERY_ENGINE_BINARY,library:process.env.PRISMA_QUERY_ENGINE_LIBRARY}[e]??r.prismaPath;if(t!==void 0)return t;let{enginePath:n,searchedLocations:i}=await Wm(e,r);if(Gm("enginePath",n),n!==void 0&&e==="binary"&&Ri(n),n!==void 0)return r.prismaPath=n;let o=await ir(),s=r.generator?.binaryTargets??[],a=s.some(d=>d.native),l=!s.some(d=>d.value===o),u=__filename.match(Qm())===null,c={searchedLocations:i,generatorBinaryTargets:s,generator:r.generator,runtimeBinaryTarget:o,queryEngineName:fl(e,o),expectedLocation:St.default.relative(process.cwd(),r.dirname),errorStack:new Error().stack},p;throw a&&l?p=cl(c):l?p=ll(c):u?p=ul(c):p=pl(c),new P(p,r.clientVersion)}async function Wm(e,r){let t=await ir(),n=[],i=[r.dirname,St.default.resolve(__dirname,".."),r.generator?.output?.value??__dirname,St.default.resolve(__dirname,"../../../.prisma/client"),"/tmp/prisma-engines",r.cwd];__filename.includes("resolveEnginePath")&&i.push(ms());for(let o of i){let s=fl(e,t),a=St.default.join(o,s);if(n.push(o),dl.default.existsSync(a))return{enginePath:a,searchedLocations:n}}return{enginePath:void 0,searchedLocations:n}}function fl(e,r){return e==="library"?Gt(r,"fs"):`query-engine-${r}${r==="windows"?".exe":""}`}function gl(e){return e?e.replace(/".*"/g,'"X"').replace(/[\s:\[]([+-]?([0-9]*[.])?[0-9]+)/g,r=>`${r[0]}5`):""}function hl(e){return e.split(`
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    ^
+
+PrismaClientInitializationError: Prisma Client could not locate the Query Engine for runtime "darwin-arm64".
+
+This happened because Prisma Client was generated for "darwin", but the actual deployment required "darwin-arm64".
+Add "darwin-arm64" to `binaryTargets` in the "schema.prisma" file and run `prisma generate` after saving it:
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "darwin-arm64"]
+}
+
+The following locations have been searched:
+  /Users/kiwitech/Documents/Recruitment/backend/node_modules/.prisma/client
+  /Users/kiwitech/Documents/Recruitment/backend/node_modules/@prisma/client
+  /tmp/prisma-engines
+  /Users/kiwitech/Documents/Recruitment/backend/prisma
+    at ml (/Users/kiwitech/Documents/Recruitment/backend/node_modules/@prisma/client/runtime/library.js:64:805)
+    at async Object.loadLibrary (/Users/kiwitech/Documents/Recruitment/backend/node_modules/@prisma/client/runtime/library.js:111:7998)
+    at async Qr.loadEngine (/Users/kiwitech/Documents/Recruitment/backend/node_modules/@prisma/client/runtime/library.js:112:448)
+    at async Qr.instantiateLibrary (/Users/kiwitech/Documents/Recruitment/backend/node_modules/@prisma/client/runtime/library.js:111:11901) {
+  clientVersion: '6.19.3',
+  errorCode: undefined,
+  retryable: undefined
+}
+
+Node.js v20.19.6
+Failed running 'server.js'
+===== started 2026-09-29 02:46:56 =====
+
+> worknovas-backend@1.0.0 dev
+> node --watch server.js
+
+API on :4000
+Restarting 'server.js'
+Restarting 'server.js'
+file:///Users/kiwitech/Documents/Recruitment/backend/src/routes/index.js:3
+import { allow } from '../middlewares/role.middleware.js';
+         ^^^^^
+SyntaxError: The requested module '../middlewares/role.middleware.js' does not provide an export named 'allow'
+    at ModuleJob._instantiate (node:internal/modules/esm/module_job:213:21)
+    at async ModuleJob.run (node:internal/modules/esm/module_job:320:5)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+
+Node.js v20.19.6
+Failed running 'server.js'
+Restarting 'server.js'
+file:///Users/kiwitech/Documents/Recruitment/backend/src/routes/index.js:3
+import { allow } from '../middlewares/role.middleware.js';
+         ^^^^^
+SyntaxError: The requested module '../middlewares/role.middleware.js' does not provide an export named 'allow'
+    at ModuleJob._instantiate (node:internal/modules/esm/module_job:213:21)
+    at async ModuleJob.run (node:internal/modules/esm/module_job:320:5)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+
+Node.js v20.19.6
+Failed running 'server.js'
+Restarting 'server.js'
+API on :4000
+Restarting 'server.js'
+API on :4000
+Restarting 'server.js'
+API on :4000
+Restarting 'server.js'
+API on :4000
+Restarting 'server.js'
+API on :4000
+Error: Not allowed to act for this user
+    at httpError (file:///Users/kiwitech/Documents/Recruitment/backend/src/services/access.js:7:61)
+    at actingUserId (file:///Users/kiwitech/Documents/Recruitment/backend/src/services/access.js:76:46)
+    at async logCall (file:///Users/kiwitech/Documents/Recruitment/backend/src/controllers/calling.controller.js:57:17) {
+  status: 403
+}
+[access] INVITE link for babb3ccd-d2dd-487f-8c98-3ed88e4c45fc: http://localhost:5173/accept-invite?token=b517b4627fafc7e2cfeb45ac5992d5a26d54e10b88552aba63dfb8a34e301211
+Error: Password must be 8+ characters with a letter and a number
+    at httpError (file:///Users/kiwitech/Documents/Recruitment/backend/src/services/access.js:7:61)
+    at checkPassword (file:///Users/kiwitech/Documents/Recruitment/backend/src/controllers/auth.controller.js:15:11)
+    at acceptInvite (file:///Users/kiwitech/Documents/Recruitment/backend/src/controllers/auth.controller.js:84:5)
+    at Layer.handle [as handle_request] (/Users/kiwitech/Documents/Recruitment/backend/node_modules/express/lib/router/layer.js:95:5)
+    at next (/Users/kiwitech/Documents/Recruitment/backend/node_modules/express/lib/router/route.js:149:13)
+    at Route.dispatch (/Users/kiwitech/Documents/Recruitment/backend/node_modules/express/lib/router/route.js:119:3)
+    at Layer.handle [as handle_request] (/Users/kiwitech/Documents/Recruitment/backend/node_modules/express/lib/router/layer.js:95:5)
+    at /Users/kiwitech/Documents/Recruitment/backend/node_modules/express/lib/router/index.js:284:15
+    at Function.process_params (/Users/kiwitech/Documents/Recruitment/backend/node_modules/express/lib/router/index.js:346:12)
+    at next (/Users/kiwitech/Documents/Recruitment/backend/node_modules/express/lib/router/index.js:280:10) {
+  status: 400
+}
+Error: Link is invalid or expired
+    at httpError (file:///Users/kiwitech/Documents/Recruitment/backend/src/services/access.js:7:61)
+    at consumeToken (file:///Users/kiwitech/Documents/Recruitment/backend/src/services/access.js:24:76)
+    at async acceptInvite (file:///Users/kiwitech/Documents/Recruitment/backend/src/controllers/auth.controller.js:85:15) {
+  status: 400
+}
+Error: Only admins can change another admin
+    at httpError (file:///Users/kiwitech/Documents/Recruitment/backend/src/services/access.js:7:61)
+    at guardTarget (file:///Users/kiwitech/Documents/Recruitment/backend/src/controllers/users.controller.js:37:61)
+    at file:///Users/kiwitech/Documents/Recruitment/backend/src/controllers/users.controller.js:168:11 {
+  status: 403
+}
+Error: You cannot change your own access
+    at httpError (file:///Users/kiwitech/Documents/Recruitment/backend/src/services/access.js:7:61)
+    at guardTarget (file:///Users/kiwitech/Documents/Recruitment/backend/src/controllers/users.controller.js:36:35)
+    at file:///Users/kiwitech/Documents/Recruitment/backend/src/controllers/users.controller.js:168:11 {
+  status: 400
+}
+[access] INVITE link for bc783206-d06c-436e-ae02-0714aeb144f1: http://localhost:5173/accept-invite?token=00901a3267bea7ae088ecfc7e9dd40302ebba96cd569cf4f7d4d29cfe4512b45
+Error: Only admins can assign this role
+    at httpError (file:///Users/kiwitech/Documents/Recruitment/backend/src/services/access.js:7:61)
+    at guardRole (file:///Users/kiwitech/Documents/Recruitment/backend/src/controllers/users.controller.js:42:66)
+    at async updateUser (file:///Users/kiwitech/Documents/Recruitment/backend/src/controllers/users.controller.js:134:9) {
+  status: 403
+}
+Error: Role is assigned to 1 user(s)
+    at httpError (file:///Users/kiwitech/Documents/Recruitment/backend/src/services/access.js:7:61)
+    at deleteRole (file:///Users/kiwitech/Documents/Recruitment/backend/src/controllers/roles.controller.js:93:31) {
+  status: 400
+}
+Error: The owner admin role cannot be changed
+    at httpError (file:///Users/kiwitech/Documents/Recruitment/backend/src/services/access.js:7:61)
+    at updateRole (file:///Users/kiwitech/Documents/Recruitment/backend/src/controllers/roles.controller.js:66:34) {
+  status: 400
+}
+===== started 2026-09-29 05:06:18 =====
+
+> worknovas-backend@1.0.0 dev
+> node --watch server.js
+
+node: bad option: --watch
+===== started 2026-09-29 05:10:19 =====
+
+> worknovas-backend@1.0.0 dev
+> node --watch server.js
+
+file:///Users/kiwitech/Documents/Recruitment/backend/src/controllers/pipeline.controller.js:2
+import { scopeIds, actingUserId, assertInScope, audit, httpError } from '../services/access.js';
+                                                       ^^^^^^^^^
+SyntaxError: The requested module '../services/access.js' does not provide an export named 'httpError'
+    at ModuleJob._instantiate (node:internal/modules/esm/module_job:180:21)
+    at async ModuleJob.run (node:internal/modules/esm/module_job:263:5)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:547:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:116:5)
+
+Node.js v22.13.1
+Failed running 'server.js'
+Restarting 'server.js'
+file:///Users/kiwitech/Documents/Recruitment/backend/src/routes/index.js:13
+  forceLogout, unlockUser, adminResetLink, setUserPermissions
+                           ^^^^^^^^^^^^^^
+SyntaxError: The requested module '../controllers/users.controller.js' does not provide an export named 'adminResetLink'
+    at ModuleJob._instantiate (node:internal/modules/esm/module_job:180:21)
+    at async ModuleJob.run (node:internal/modules/esm/module_job:263:5)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:547:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:116:5)
+
+Node.js v22.13.1
+Failed running 'server.js'
+Restarting 'server.js'
+file:///Users/kiwitech/Documents/Recruitment/backend/src/routes/index.js:15
+import { catalog, listRoles, createRole, updateRole, deleteRole } from '../controllers/roles.controller.js';
+         ^^^^^^^
+SyntaxError: The requested module '../controllers/roles.controller.js' does not provide an export named 'catalog'
+    at ModuleJob._instantiate (node:internal/modules/esm/module_job:180:21)
+    at async ModuleJob.run (node:internal/modules/esm/module_job:263:5)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:547:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:116:5)
+
+Node.js v22.13.1
+Failed running 'server.js'
+Restarting 'server.js'
+API on :4000
+===== started 2026-09-29 05:13:48 =====
+
+> worknovas-backend@1.0.0 dev
+> node --watch server.js
+
+node: bad option: --watch
+===== started 2026-09-29 05:14:48 =====
+
+> worknovas-backend@1.0.0 dev
+> node --watch server.js
+
+===== started 2026-09-29 05:15:00 =====
+
+> worknovas-backend@1.0.0 dev
+> node --watch server.js
+
+API on :4000
+===== started 2026-09-29 05:15:28 =====
+
+> worknovas-backend@1.0.0 dev
+> node --watch server.js
+
+API on :4000
+[access] INVITE link for fd40fa91-0a12-4da1-a219-0799ffb96edc: http://localhost:5173/accept-invite?token=66fd613ad542dcf8168abba0957f83c7e241bd95949ec0adef6050ee312aca1f
+PrismaClientKnownRequestError: 
+Invalid `prisma.user.count()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+    at ei.handleRequestError (/Users/kiwitech/Documents/Recruitment/backend/node_modules/@prisma/client/runtime/library.js:121:7268)
+    at ei.handleAndLogRequestError (/Users/kiwitech/Documents/Recruitment/backend/node_modules/@prisma/client/runtime/library.js:121:6593)
+    at ei.request (/Users/kiwitech/Documents/Recruitment/backend/node_modules/@prisma/client/runtime/library.js:121:6300)
+    at async a (/Users/kiwitech/Documents/Recruitment/backend/node_modules/@prisma/client/runtime/library.js:130:9551)
+    at async Promise.all (index 0)
+    at async getCommandCenterData (file:///Users/kiwitech/Documents/Recruitment/backend/src/controllers/commandCenter.controller.js:37:9) {
+  code: 'P1001',
+  meta: { modelName: 'User', database_location: 'localhost:5432' },
+  clientVersion: '6.19.3'
+}
+PrismaClientKnownRequestError: 
+Invalid `prisma.requirement.findMany()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+    at ei.handleRequestError (/Users/kiwitech/Documents/Recruitment/backend/node_modules/@prisma/client/runtime/library.js:121:7268)
+    at ei.handleAndLogRequestError (/Users/kiwitech/Documents/Recruitment/backend/node_modules/@prisma/client/runtime/library.js:121:6593)
+    at ei.request (/Users/kiwitech/Documents/Recruitment/backend/node_modules/@prisma/client/runtime/library.js:121:6300)
+    at async a (/Users/kiwitech/Documents/Recruitment/backend/node_modules/@prisma/client/runtime/library.js:130:9551)
+    at async listRequirements (file:///Users/kiwitech/Documents/Recruitment/backend/src/controllers/requirements.controller.js:21:18) {
+  code: 'P1001',
+  meta: { modelName: 'Requirement', database_location: 'localhost:5432' },
+  clientVersion: '6.19.3'
+}
+PrismaClientKnownRequestError: 
+Invalid `prisma.submission.count()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+    at ei.handleRequestError (/Users/kiwitech/Documents/Recruitment/backend/node_modules/@prisma/client/runtime/library.js:121:7268)
+    at ei.handleAndLogRequestError (/Users/kiwitech/Documents/Recruitment/backend/node_modules/@prisma/client/runtime/library.js:121:6593)
+    at ei.request (/Users/kiwitech/Documents/Recruitment/backend/node_modules/@prisma/client/runtime/library.js:121:6300)
+    at async a (/Users/kiwitech/Documents/Recruitment/backend/node_modules/@prisma/client/runtime/library.js:130:9551)
+    at async Promise.all (index 4)
+    at async getCommandCenterData (file:///Users/kiwitech/Documents/Recruitment/backend/src/controllers/commandCenter.controller.js:37:9) {
+  code: 'P1001',
+  meta: { modelName: 'Submission', database_location: 'localhost:5432' },
+  clientVersion: '6.19.3'
+}
+Restarting 'server.js'
+API on :4000
+===== started 2026-09-29 10:46:31 =====
+
+> worknovas-backend@1.0.0 dev
+> node --watch server.js
+
+(node:6026) ExperimentalWarning: Watch mode is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+API on :4000
+===== started 2026-09-30 03:57:21 =====
+
+> worknovas-backend@1.0.0 dev
+> node --watch server.js
+
+(node:21284) ExperimentalWarning: Watch mode is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+API on :4000
+===== started 2026-09-30 17:33:04 =====
+
+> worknovas-backend@1.0.0 dev
+> node --watch server.js
+
+(node:21674) ExperimentalWarning: Watch mode is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+API on :4000
+===== started 2026-10-18 05:19:21 =====
+
+> worknovas-backend@1.0.0 dev
+> node --watch server.js
+
+node:events:502
+      throw er; // Unhandled 'error' event
+      ^
+
+Error: listen EADDRINUSE: address already in use :::4000
+    at Server.setupListenHandle [as _listen2] (node:net:1937:16)
+    at listenInCluster (node:net:1994:12)
+    at Server.listen (node:net:2099:7)
+    at Function.listen (/Users/kiwitech/Documents/Recruitment/backend/node_modules/express/lib/application.js:635:24)
+    at file:///Users/kiwitech/Documents/Recruitment/backend/server.js:7:5
+Emitted 'error' event on Server instance at:
+    at emitErrorNT (node:net:1973:8)
+    at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+  code: 'EADDRINUSE',
+  errno: -48,
+  syscall: 'listen',
+  address: '::',
+  port: 4000
+}
+
+Node.js v22.13.1
+Failed running 'server.js'
+===== started 2026-10-18 05:42:57 =====
+
+> worknovas-backend@1.0.0 dev
+> node --watch server.js
+
+API on :4000
+Restarting 'server.js'
+Restarting 'server.js'
+Restarting 'server.js'
+API on :4000
+Restarting 'server.js'
+API on :4000
+Restarting 'server.js'
+API on :4000
+Restarting 'server.js'
+API on :4000
+Restarting 'server.js'
+API on :4000
+Restarting 'server.js'
+API on :4000
+Restarting 'server.js'
+API on :4000
