@@ -27,7 +27,8 @@ export default function Users() {
     if (['revoke', 'reject', 'suspend'].includes(op) && !confirm(`${label} ${u.fullName}?`)) return;
     try {
       const { data: r } = await api.post(`/users/${u.id}/${op}`);
-      if (r.inviteLink || r.resetLink) setLink({ user: u, url: r.inviteLink || r.resetLink, kind: r.inviteLink ? 'Invite' : 'Password reset' });
+      const url = r.link || r.resetLink;
+      if (url) setLink({ user: u, url, emailed: r.emailed, kind: op === 'resend-invite' ? 'Invite' : 'Password reset' });
       else setNotice(`${label}: ${u.fullName}`);
       reload();
     } catch (e) {
@@ -107,24 +108,38 @@ export default function Users() {
       </Card>
 
       {inviting && <Invite roles={roles || []} users={data?.users || []} onClose={() => setInviting(false)}
-        onDone={r => { setInviting(false); setLink({ user: r.user, url: r.inviteLink, kind: 'Invite' }); reload(); }} />}
+        onDone={r => { setInviting(false); setLink(r.defaultPassword
+          ? { user: r.user, url: r.defaultPassword, kind: 'Password' }
+          : { user: r.user, url: r.link, emailed: r.emailed, kind: 'Invite' }); reload(); }} />}
       {editing && <Manage user={editing} roles={roles || []} users={data?.users || []} onClose={() => setEditing(null)}
         onAct={(op, label) => { act(editing, op, label); setEditing(null); }}
-        onSaved={() => { reload(); setEditing(null); }} />}
+        onSaved={() => { reload(); setEditing(null); }}
+        onRefresh={reload} />}
       {link && <LinkModal {...link} onClose={() => setLink(null)} />}
     </div>
   );
 }
 
-function LinkModal({ user, url, kind, onClose }) {
+function LinkModal({ user, url, kind, emailed, onClose }) {
   const [copied, setCopied] = useState(false);
   const copy = () => navigator.clipboard.writeText(url).then(() => setCopied(true));
   return (
-    <Modal title={`${kind} link for ${user.fullName}`} onClose={onClose}>
+    <Modal title={kind === 'Password' ? `Sign-in details for ${user.fullName}` : `${kind} link for ${user.fullName}`} onClose={onClose}>
+      {kind === 'Password' ? (
+        <p className="text-xs text-slate-600">
+          {user.fullName} can sign in with <b>{user.email}</b> and the default password below.
+          {user.status !== 'ACTIVE' && ' An admin must approve the account first.'} Ask them to change it from their profile.
+        </p>
+      ) : <>
+      <p className={`text-xs font-semibold ${emailed ? 'text-emerald-600' : 'text-amber-600'}`}>
+        {emailed ? `Emailed to ${user.email}, along with a verification code.` : 'Not emailed — send this link yourself.'}
+      </p>
       <p className="text-xs text-slate-600">
-        Send this link to {user.email}. It works once and expires in {kind === 'Invite' ? '48 hours' : '24 hours'}.
+        {emailed ? 'Keep this copy as a backup. ' : `Send this link to ${user.email}. `}
+        It works once and expires in {kind === 'Invite' ? '48 hours' : '24 hours'}.
         {kind === 'Invite' && !user.approvedAt && ' An admin must also approve the account before they can sign in.'}
       </p>
+      </>}
       <div className="flex gap-2">
         <input readOnly value={url} className={`${inputCls} font-mono text-[10px]`} onFocus={e => e.target.select()} />
         <button onClick={copy} className={btnCls}>{copied ? <Check size={14} /> : <Copy size={14} />}</button>
@@ -211,7 +226,7 @@ function Invite({ roles, users, onClose, onDone }) {
   );
 }
 
-function Manage({ user, roles, users, onClose, onAct, onSaved }) {
+function Manage({ user, roles, users, onClose, onAct, onSaved, onRefresh }) {
   const { data: catalog } = useApi('/access/catalog');
   const [tab, setTab] = useState('details');
   const [f, setF] = useState({
@@ -275,6 +290,7 @@ function Manage({ user, roles, users, onClose, onAct, onSaved }) {
 
       {tab === 'security' && (
         <div className="space-y-3 text-xs">
+          <SetPassword user={user} onSaved={onRefresh} />
           <Row label="Send password reset link" hint="Creates a one-time link valid for 24 hours." disabled={user.status !== 'ACTIVE'} onClick={() => onAct('reset-link', 'Reset link')} btn="Create link" />
           <Row label="Sign out everywhere" hint="Ends all of this user's current sessions." onClick={() => onAct('force-logout', 'Signed out')} btn="Force logout" />
           {user.status === 'ACTIVE' && <Row label="Suspend access" hint="Blocks sign-in until restored. Data is kept." onClick={() => onAct('suspend', 'Suspended')} btn="Suspend" />}
@@ -289,6 +305,54 @@ function Manage({ user, roles, users, onClose, onAct, onSaved }) {
         {tab === 'perms' && <button onClick={savePerms} className={btnCls}>Save permissions</button>}
       </div>
     </Modal>
+  );
+}
+
+// Stand-in for the invite email while no mailer is wired up: the admin sets a password
+// and passes it on directly, then the user changes it from their own profile.
+function SetPassword({ user, onSaved }) {
+  const [pw, setPw] = useState('');
+  const [msg, setMsg] = useState('');
+  const [err, setErr] = useState('');
+  const [busy, setBusy] = useState(false);
+  const blocked = ['REVOKED', 'SUSPENDED'].includes(user.status);
+
+  const gen = () => {
+    const chars = 'abcdefghijkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    const bytes = crypto.getRandomValues(new Uint32Array(12));
+    setPw([...bytes].map(b => chars[b % chars.length]).join('') + '1');
+    setMsg(''); setErr('');
+  };
+
+  const save = async () => {
+    setBusy(true); setMsg(''); setErr('');
+    try {
+      const { data } = await api.post(`/users/${user.id}/set-password`, { password: pw });
+      setMsg(data.message);
+      onSaved?.();
+    } catch (e) {
+      setErr(errMsg(e));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div className="border border-slate-100 rounded-lg p-3 space-y-2">
+      <div className="font-semibold text-slate-800">Set a password manually</div>
+      <div className="text-[11px] text-slate-500">
+        Use this while email is not connected. Share the password with {user.email} yourself — they can change it later from their profile.
+      </div>
+      <div className="flex gap-2">
+        <input className={`${inputCls} font-mono`} value={pw} onChange={e => setPw(e.target.value)}
+          placeholder="At least 8 chars, a letter and a number" autoComplete="off" />
+        <button type="button" onClick={gen} className={ghostBtn}>Generate</button>
+        <button type="button" disabled={busy || !pw || blocked} onClick={save} className={btnCls}>Set</button>
+      </div>
+      {blocked && <div className="text-[11px] text-slate-500">Restore the account first.</div>}
+      {msg && <div className="text-[11px] text-emerald-700">{msg}</div>}
+      {err && <div className="text-[11px] text-rose-600">{err}</div>}
+    </div>
   );
 }
 

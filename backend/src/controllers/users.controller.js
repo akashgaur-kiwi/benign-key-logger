@@ -4,10 +4,21 @@ import prisma from '../config/db.js';
 import { ACTIONS, MODULES, SCOPES } from '../config/permissions.js';
 import { accessInclude, audit, effectivePerms, issueToken } from '../services/access.js';
 import { notifyMany } from '../services/notify.js';
+import { approvedEmail, inviteEmail, resetEmail } from '../services/emails.js';
+import { sendOtp } from '../services/otp.js';
+import { PW_ERR, validPassword } from './auth.controller.js';
 import { adminAndHrIds } from './notifications.controller.js';
 
 const ROLES = ['OWNER_ADMIN', 'ACCOUNT_MANAGER', 'RECRUITER', 'HR_ADMIN'];
 const INVITE_HOURS = 48;
+
+// Mails the invite plus its verification code. The link is still returned so an admin can
+// hand it over by hand when SMTP isn't configured or delivery fails.
+async function deliverInvite(u, link) {
+  const { sent } = await inviteEmail(u, link, INVITE_HOURS);
+  if (sent) await sendOtp('email', u.email);
+  return sent;
+}
 const bad = (status, msg) => Object.assign(new Error(msg), { status });
 
 const view = u => ({
@@ -94,6 +105,10 @@ export async function inviteUser(req, res, next) {
     if (preApprove && !canApprove(req)) return res.status(403).json({ error: 'Only an approver can pre-approve' });
     const ar = (await guardRole(req, appRoleId)) || await prisma.appRole.findUnique({ where: { name: role } });
     if (ar?.name === 'OWNER_ADMIN' && !canApprove(req)) return res.status(403).json({ error: 'Only an approver can assign this role' });
+    // While no mailer is wired up, DEFAULT_USER_PASSWORD lets new users sign in straight away
+    // instead of going through the invite link. Approval rules still apply.
+    const defaultPassword = validPassword(process.env.DEFAULT_USER_PASSWORD) ? process.env.DEFAULT_USER_PASSWORD : null;
+    const status = !defaultPassword ? 'INVITED' : preApprove ? 'ACTIVE' : 'PENDING_APPROVAL';
     const u = await prisma.user.create({
       data: {
         email: email.toLowerCase().trim(), fullName, role, appRoleId: ar?.id, managerId: managerId || null,
@@ -102,17 +117,18 @@ export async function inviteUser(req, res, next) {
         dateOfJoining: dateOfJoining ? new Date(dateOfJoining) : null,
         dateOfExit: dateOfExit ? new Date(dateOfExit) : null,
         accessExpiresAt: accessExpiresAt ? new Date(accessExpiresAt) : null,
-        passwordHash: await bcrypt.hash(crypto.randomBytes(24).toString('hex'), 10),
-        status: 'INVITED', isActive: false, invitedById: req.user.id,
+        passwordHash: await bcrypt.hash(defaultPassword || crypto.randomBytes(24).toString('hex'), 10),
+        status, isActive: status === 'ACTIVE', invitedById: req.user.id,
         ...(preApprove ? { approvedById: req.user.id, approvedAt: new Date() } : {})
       }
     });
-    const link = await issueToken(u.id, 'INVITE', INVITE_HOURS);
-    await audit(req, 'USER_INVITED', 'User', u.id, null, { email: u.email, role, appRole: ar?.name, preApprove: !!preApprove });
+    const link = defaultPassword ? null : await issueToken(u.id, 'INVITE', INVITE_HOURS);
+    const emailed = defaultPassword ? false : await deliverInvite(u, link);
+    await audit(req, 'USER_INVITED', 'User', u.id, null, { email: u.email, role, appRole: ar?.name, preApprove: !!preApprove, emailed, defaultPassword: !!defaultPassword });
     const admins = (await adminAndHrIds()).filter(id => id !== req.user.id);
     await notifyMany(admins, 'EMPLOYEE_ADDED', 'New employee added',
       `${u.fullName} (${u.designation || u.role}) was invited to the workspace.`, '/employees');
-    res.status(201).json({ user: view(await load(u.id)), link });
+    res.status(201).json({ user: view(await load(u.id)), link, emailed, defaultPassword });
   } catch (e) {
     next(e);
   }
@@ -123,8 +139,9 @@ export async function resendInvite(req, res, next) {
     const u = await load(req.params.id);
     if (u.status !== 'INVITED') return res.status(400).json({ error: 'User has already accepted the invite' });
     const link = await issueToken(u.id, 'INVITE', INVITE_HOURS);
-    await audit(req, 'INVITE_RESENT', 'User', u.id);
-    res.json({ link });
+    const emailed = await deliverInvite(u, link);
+    await audit(req, 'INVITE_RESENT', 'User', u.id, null, { emailed });
+    res.json({ link, emailed });
   } catch (e) {
     next(e);
   }
@@ -200,6 +217,7 @@ export const changeStatus = op => async (req, res, next) => {
     await prisma.user.update({ where: { id: u.id }, data });
     const after = await load(u.id);
     await audit(req, `USER_${op.toUpperCase()}`, 'User', u.id, { status: u.status }, { status: after.status, reason: req.body?.reason });
+    if (op === 'approve' && after.status === 'ACTIVE') await approvedEmail(after);
     if (data.status === 'REVOKED') {
       const admins = (await adminAndHrIds()).filter(id => id !== req.user.id && id !== u.id);
       await notifyMany(admins, 'EMPLOYEE_EXIT', 'Employee exit',
@@ -241,8 +259,50 @@ export async function adminResetLink(req, res, next) {
     await guard(req, u);
     if (u.status !== 'ACTIVE') return res.status(400).json({ error: 'User is not active' });
     const resetLink = await issueToken(u.id, 'RESET', 24);
-    await audit(req, 'PASSWORD_RESET_ISSUED', 'User', u.id);
-    res.json({ resetLink });
+    const { sent: emailed } = await resetEmail(u, resetLink, 24);
+    if (emailed) await sendOtp('email', u.email);
+    await audit(req, 'PASSWORD_RESET_ISSUED', 'User', u.id, null, { emailed });
+    res.json({ resetLink, emailed });
+  } catch (e) {
+    next(e);
+  }
+}
+
+// Manual alternative to the invite email: the admin sets the password and hands it over out of band.
+// An approver doing this also activates the account, since the manual step is the approval.
+export async function setUserPassword(req, res, next) {
+  try {
+    const u = await load(req.params.id);
+    await guard(req, u);
+    const { password } = req.body || {};
+    if (!validPassword(password)) return res.status(400).json({ error: PW_ERR });
+    if (['REVOKED', 'SUSPENDED'].includes(u.status)) {
+      return res.status(400).json({ error: `Restore the account before setting a password (currently ${u.status.toLowerCase()})` });
+    }
+    const activate = u.status !== 'ACTIVE' && canApprove(req);
+    await prisma.$transaction([
+      // Any invite or reset link already issued must stop working once a password is set by hand.
+      prisma.authToken.updateMany({ where: { userId: u.id, usedAt: null }, data: { usedAt: new Date() } }),
+      prisma.user.update({
+        where: { id: u.id },
+        data: {
+          passwordHash: await bcrypt.hash(password, 10),
+          failedLogins: 0, lockedUntil: null,
+          tokenVersion: { increment: 1 },
+          ...(activate
+            ? { status: 'ACTIVE', isActive: true, approvedById: u.approvedById || req.user.id, approvedAt: u.approvedAt || new Date() }
+            : u.status === 'INVITED' ? { status: 'PENDING_APPROVAL' } : {})
+        }
+      })
+    ]);
+    await audit(req, 'PASSWORD_SET_BY_ADMIN', 'User', u.id, null, { activated: activate });
+    const user = view(await load(u.id));
+    res.json({
+      user,
+      message: user.status === 'ACTIVE'
+        ? `Password set. ${u.fullName} can sign in with ${u.email} now.`
+        : 'Password set. An approver still has to approve this account before sign-in.'
+    });
   } catch (e) {
     next(e);
   }

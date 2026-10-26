@@ -4,7 +4,8 @@ import { DEFAULT_ROLES, SCOPE_RANK } from '../config/permissions.js';
 
 export const hashToken = t => crypto.createHash('sha256').update(t).digest('hex');
 
-// No mail service yet: link is returned to the admin and logged
+// Builds the link and logs it; callers email it (see services/emails.js) and may also
+// show it to the admin as a fallback when delivery is off or failed.
 export async function issueToken(userId, type, hours) {
   const raw = crypto.randomBytes(32).toString('hex');
   await prisma.authToken.updateMany({ where: { userId, type, usedAt: null }, data: { usedAt: new Date() } });

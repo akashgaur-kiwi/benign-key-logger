@@ -53,10 +53,24 @@ const otpProps = { inputMode: 'numeric', maxLength: 6, pattern: '\\d{6}', autoCo
 function SetPassword({ heading, url, cta, type }) {
   const [sp] = useSearchParams();
   const token = sp.get('token');
-  const [needsSms, setNeedsSms] = useState(false);
+  const [info, setInfo] = useState({});
+  const [otpMsg, setOtpMsg] = useState('');
+  const [sending, setSending] = useState(false);
+  const needsSms = !!info.needsSmsOtp;
   useEffect(() => {
-    if (token) api.get('/auth/check-token', { params: { token, type } }).then(r => setNeedsSms(!!r.data.needsSmsOtp)).catch(() => {});
+    if (token) api.get('/auth/check-token', { params: { token, type } }).then(r => setInfo(r.data)).catch(() => {});
   }, [token, type]);
+  const sendCode = async () => {
+    setSending(true);
+    try {
+      const { data } = await api.post('/auth/send-otp', { token, type });
+      setOtpMsg(data.message);
+    } catch (e) {
+      setOtpMsg(errMsg(e));
+    } finally {
+      setSending(false);
+    }
+  };
   const { f, set, submit, err, msg, busy } = useForm({ password: '', confirm: '', emailOtp: '', smsOtp: '' },
     v => api.post(url, { token, password: v.password, emailOtp: v.emailOtp, smsOtp: v.smsOtp }));
   if (!token) return <AuthCard heading={heading}><p className="text-xs text-rose-600">This link is missing its token.</p><Back /></AuthCard>;
@@ -72,6 +86,13 @@ function SetPassword({ heading, url, cta, type }) {
           <input className={inputCls} type="password" placeholder="New password (8+ chars, letter and number)" value={f.password} onChange={set('password')} required />
           <input className={inputCls} type="password" placeholder="Confirm password" value={f.confirm} onChange={set('confirm')} required />
           <input className={inputCls} {...otpProps} placeholder="Email verification code (6 digits)" value={f.emailOtp} onChange={set('emailOtp')} required />
+          {info.canSendOtp && (
+            <button type="button" onClick={sendCode} disabled={sending}
+              className="text-xs text-blue-600 hover:underline disabled:text-slate-400">
+              {sending ? 'Sending…' : `Email me a code${info.email ? ` (${info.email})` : ''}`}
+            </button>
+          )}
+          {otpMsg && <div className="text-xs text-slate-500">{otpMsg}</div>}
           {needsSms && <input className={inputCls} {...otpProps} placeholder="SMS verification code (6 digits)" value={f.smsOtp} onChange={set('smsOtp')} required />}
           {err && <div className="text-xs text-rose-600">{err}</div>}
           <button className={`${btnCls} w-full justify-center py-2`} disabled={busy}>{cta}</button>
@@ -119,7 +140,7 @@ export function ForgotPassword() {
       {msg ? (
         <div className="space-y-2">
           <p className="text-xs text-slate-600">{msg}</p>
-          {/* Non-production only: email isn't sent yet, so preview what it would contain. */}
+          {/* Only returned when the email could not be sent: show the link so it can be handed over. */}
           {extra.link && <EmailPreview email={f.email} link={extra.link} />}
         </div>
       ) : (

@@ -334,3 +334,13 @@ Restarting 'server.js'
 API on :4000
 Restarting 'server.js'
 API on :4000
+===== started 2026-10-18 09:39:45 =====
+
+> worknovas-backend@1.0.0 dev
+> node --watch server.js
+
+(node:80339) ExperimentalWarning: Watch mode is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+[mail] disabled (set SMTP_HOST to enable)
+API on :4000
+Failed running 'server.js'

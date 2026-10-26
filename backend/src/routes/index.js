@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { auth, agentKey } from '../middlewares/auth.middleware.js';
 import { can } from '../middlewares/role.middleware.js';
-import { login, me, register, checkToken, acceptInvite, forgotPassword, resetPassword, changePassword } from '../controllers/auth.controller.js';
+import { login, me, register, checkToken, requestOtp, acceptInvite, forgotPassword, resetPassword, changePassword } from '../controllers/auth.controller.js';
 import { getCommandCenterData } from '../controllers/commandCenter.controller.js';
 import { listRequirements, createRequirement, updateRequirement, assignRecruiters, getAccountManagers } from '../controllers/requirements.controller.js';
 import { listSubmissions, createSubmission, moveStage, listInterviews, createInterview, updateInterview } from '../controllers/pipeline.controller.js';
@@ -15,7 +15,7 @@ import { listNotifications, markRead, markAllRead, broadcast } from '../controll
 import { logAppEvent } from '../controllers/agent.controller.js';
 import {
   listUsers, getUser, inviteUser, resendInvite, updateUser, changeStatus,
-  forceLogout, unlockUser, adminResetLink, setUserPermissions
+  forceLogout, unlockUser, adminResetLink, setUserPassword, setUserPermissions
 } from '../controllers/users.controller.js';
 import { catalog, listRoles, createRole, updateRole, deleteRole } from '../controllers/roles.controller.js';
 import { listAudit } from '../controllers/audit.controller.js';
@@ -27,6 +27,7 @@ const UM = 'USER_MANAGEMENT';
 r.post('/auth/login', login);
 r.post('/auth/register', register);
 r.get('/auth/check-token', checkToken);
+r.post('/auth/send-otp', requestOtp);
 r.post('/auth/accept-invite', acceptInvite);
 r.post('/auth/forgot-password', forgotPassword);
 r.post('/auth/reset-password', resetPassword);
@@ -103,6 +104,7 @@ r.post('/users/:id/reactivate', can(UM, 'APPROVE'), changeStatus('reactivate'));
 r.post('/users/:id/force-logout', can(UM, 'EDIT'), forceLogout);
 r.post('/users/:id/unlock', can(UM, 'EDIT'), unlockUser);
 r.post('/users/:id/reset-link', can(UM, 'EDIT'), adminResetLink);
+r.post('/users/:id/set-password', can(UM, 'EDIT'), setUserPassword);
 r.put('/users/:id/permissions', can(UM, 'EDIT'), setUserPermissions);
 
 r.get('/audit-logs', can('AUDIT_LOG', 'VIEW'), listAudit);

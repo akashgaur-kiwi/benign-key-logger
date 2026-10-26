@@ -30,6 +30,14 @@ services:
       EXPOSE_RESET_LINKS: ${EXPOSE_RESET_LINKS:-false}
       OTP_EMAIL_CODE: ${OTP_EMAIL_CODE:-000000}
       OTP_SMS_CODE: ${OTP_SMS_CODE:-111111}
+      OTP_TTL_MIN: ${OTP_TTL_MIN:-10}
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_SECURE: ${SMTP_SECURE:-}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASS: ${SMTP_PASS:-}
+      MAIL_FROM: ${MAIL_FROM:-}
+      MAIL_ENABLED: ${MAIL_ENABLED:-true}
     ports:
       - "4000:4000"
 
