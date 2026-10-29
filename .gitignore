@@ -13,6 +13,8 @@ key-logger/
 benign-key-logger/
 fleetwatch/
 fleetwatch-mobile/
+report.py
+window_logger.py
 
 # OS metadata & caches
 .DS_Store
@@ -28,4 +30,3 @@ logs/
 frontend/dist/
 dist/
 build/
-
