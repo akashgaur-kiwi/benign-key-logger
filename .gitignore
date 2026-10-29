@@ -1,2 +1,10 @@
 frontend/node_modules/
 backend/node_modules/
+# Secrets: never commit
+.env
+.env.*
+!.env.example
+*.pem
+# Unrelated vendored tools (keep out of this repo)
+key-logger/
+benign-key-logger/

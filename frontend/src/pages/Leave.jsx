@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import api, { useApi, can, errMsg } from '../lib/api.js';
-import { PageHeader, Card, Table, StatTile, Status, Badge, Modal, Tabs, DeleteButton, inputCls, btnCls, ghostBtn } from '../components/ui.jsx';
+import { PageHeader, Card, Table, StatTile, Status, Badge, Modal, Tabs, DeleteButton, ask, inputCls, btnCls, ghostBtn } from '../components/ui.jsx';
 import { fmtDate, title } from '../lib/format.js';
 
 const TYPES = ['CASUAL', 'SICK', 'EMERGENCY', 'UNPAID'];
@@ -60,12 +60,17 @@ export default function Leave() {
   const refresh = () => { reload(); reloadBal(); };
 
   const decide = async (id, decision) => {
-    const note = decision === 'REJECTED' ? (prompt('Reason for rejection (optional):') || '') : '';
+    let note = '';
+    if (decision === 'REJECTED') {
+      note = await ask({ title: 'Reject leave request?', message: 'Add a reason for the employee (optional).',
+        input: { placeholder: 'Reason for rejection' }, confirmLabel: 'Reject', danger: true });
+      if (note === null) return;
+    }
     await api.post(`/leaves/${id}/decide`, { decision, note });
     refresh();
   };
   const cancel = async id => {
-    if (!confirm('Cancel this leave request?')) return;
+    if (!(await ask({ title: 'Cancel leave request?', message: 'This leave request will be withdrawn.', confirmLabel: 'Cancel request', cancelLabel: 'Keep it', danger: true }))) return;
     await api.post(`/leaves/${id}/cancel`);
     refresh();
   };

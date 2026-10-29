@@ -12,7 +12,8 @@ const MAX_FAILS = 5, LOCK_MIN = 15;
 
 export const pub = u => ({
   id: u.id, email: u.email, fullName: u.fullName, role: u.role, teamTag: u.teamTag,
-  status: u.status, appRole: u.appRole?.name || null, permissions: effectivePerms(u)
+  status: u.status, appRole: u.appRole?.name || null, permissions: effectivePerms(u),
+  mustChangePassword: !!u.mustChangePassword
 });
 
 export const validPassword = p => typeof p === 'string' && p.length >= 8 && /[a-z]/i.test(p) && /\d/.test(p);
@@ -196,7 +197,7 @@ export async function resetPassword(req, res, next) {
       prisma.authToken.update({ where: { id: t.id }, data: { usedAt: new Date() } }),
       prisma.user.update({
         where: { id: t.userId },
-        data: { passwordHash: await bcrypt.hash(password, 10), tokenVersion: { increment: 1 }, failedLogins: 0, lockedUntil: null }
+        data: { passwordHash: await bcrypt.hash(password, 10), tokenVersion: { increment: 1 }, failedLogins: 0, lockedUntil: null, mustChangePassword: false }
       })
     ]);
     await audit({ ip: req.ip, user: { id: t.userId } }, 'PASSWORD_RESET', 'User', t.userId);
@@ -215,11 +216,12 @@ export async function changePassword(req, res, next) {
     if (!(await bcrypt.compare(currentPassword || '', u.passwordHash))) return res.status(400).json({ error: 'Current password is incorrect' });
     const nu = await prisma.user.update({
       where: { id: u.id },
-      data: { passwordHash: await bcrypt.hash(newPassword, 10), tokenVersion: { increment: 1 } }
+      data: { passwordHash: await bcrypt.hash(newPassword, 10), tokenVersion: { increment: 1 }, mustChangePassword: false },
+      include: accessInclude
     });
     await audit(req, 'PASSWORD_CHANGED', 'User', u.id);
     await passwordChangedEmail(u);
-    res.json({ token: sign(nu) });
+    res.json({ token: sign(nu), user: pub(nu) });
   } catch (e) {
     next(e);
   }

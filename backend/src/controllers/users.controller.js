@@ -118,7 +118,7 @@ export async function inviteUser(req, res, next) {
         dateOfExit: dateOfExit ? new Date(dateOfExit) : null,
         accessExpiresAt: accessExpiresAt ? new Date(accessExpiresAt) : null,
         passwordHash: await bcrypt.hash(defaultPassword || crypto.randomBytes(24).toString('hex'), 10),
-        status, isActive: status === 'ACTIVE', invitedById: req.user.id,
+        status, isActive: status === 'ACTIVE', invitedById: req.user.id, mustChangePassword: !!defaultPassword,
         ...(preApprove ? { approvedById: req.user.id, approvedAt: new Date() } : {})
       }
     });
@@ -289,6 +289,8 @@ export async function setUserPassword(req, res, next) {
           passwordHash: await bcrypt.hash(password, 10),
           failedLogins: 0, lockedUntil: null,
           tokenVersion: { increment: 1 },
+          // The admin knows this password, so the user picks their own on next sign-in.
+          mustChangePassword: true,
           ...(activate
             ? { status: 'ACTIVE', isActive: true, approvedById: u.approvedById || req.user.id, approvedAt: u.approvedAt || new Date() }
             : u.status === 'INVITED' ? { status: 'PENDING_APPROVAL' } : {})

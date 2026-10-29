@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import api, { errMsg } from '../lib/api.js';
-import { inputCls, btnCls } from '../components/ui.jsx';
+import { inputCls, btnCls, showMessage } from '../components/ui.jsx';
 
 export function AuthCard({ heading, children }) {
   return (
@@ -108,7 +108,7 @@ export const ResetPassword = () => <SetPassword heading="Choose a new password" 
 function EmailPreview({ email, link }) {
   const [copied, setCopied] = useState(false);
   const copy = async () => {
-    try { await navigator.clipboard.writeText(link); } catch { window.prompt('Copy the link:', link); }
+    try { await navigator.clipboard.writeText(link); } catch { await showMessage('Copy the link', 'Copying is blocked in this browser. Select the link and copy it.', { copyText: link }); return; }
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };

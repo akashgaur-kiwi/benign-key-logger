@@ -1,16 +1,63 @@
-import React, { useState } from 'react';
-import { Trash2 } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Trash2, AlertTriangle } from 'lucide-react';
 import api, { can, errMsg } from '../lib/api.js';
+
+// In-app replacement for window.confirm / prompt / alert. Rendered once by <DialogHost/>.
+// ask() resolves true/false; with `input` it resolves the typed text, or null on cancel.
+let openDialog = null;
+export const ask = opts => new Promise(resolve => openDialog ? openDialog({ ...opts, resolve }) : resolve(opts.input ? null : false));
+// One-button message, e.g. an error. `copyText` shows a selectable field for manual copying.
+export const showMessage = (title, message, opts = {}) => ask({ title, message, confirmLabel: 'OK', hideCancel: true, ...opts });
+
+export function DialogHost() {
+  const [d, setD] = useState(null);
+  const [text, setText] = useState('');
+  useEffect(() => {
+    openDialog = opts => { setText(opts.input?.value || ''); setD(opts); };
+    return () => { openDialog = null; };
+  }, []);
+  useEffect(() => {
+    if (!d) return;
+    const onKey = e => e.key === 'Escape' && close(false);
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [d]);
+  if (!d) return null;
+  const close = ok => {
+    d.resolve(d.input ? (ok ? text : null) : ok);
+    setD(null);
+  };
+  const okCls = d.danger
+    ? 'px-3.5 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-lg text-xs font-semibold shadow-sm transition'
+    : btnCls;
+  return (
+    <Modal title={d.title || 'Are you sure?'} onClose={() => close(false)}>
+      <form onSubmit={e => { e.preventDefault(); close(true); }} className="space-y-4">
+        <div className="flex gap-3">
+          {d.danger && <div className="shrink-0 w-8 h-8 rounded-full bg-rose-50 text-rose-600 flex items-center justify-center"><AlertTriangle size={16} /></div>}
+          {d.message && <p className="text-xs text-slate-600 leading-relaxed">{d.message}</p>}
+        </div>
+        {d.input && <input autoFocus className={inputCls} placeholder={d.input.placeholder} value={text} onChange={e => setText(e.target.value)} />}
+        {d.copyText && <input readOnly autoFocus className={`${inputCls} font-mono text-[10px]`} value={d.copyText} onFocus={e => e.target.select()} />}
+        <div className="flex justify-end gap-2">
+          {!d.hideCancel && <button type="button" onClick={() => close(false)} className="px-3 py-1.5 text-xs text-slate-500">{d.cancelLabel || 'Cancel'}</button>}
+          <button autoFocus={!d.input && !d.copyText} className={okCls}>{d.confirmLabel || 'Confirm'}</button>
+        </div>
+      </form>
+    </Modal>
+  );
+}
 
 // Confirm-then-DELETE icon button; hidden unless the user holds MODULE:DELETE.
 export function DeleteButton({ module, url, label = 'this record', onDone }) {
   const [busy, setBusy] = useState(false);
   if (!can(module, 'DELETE')) return null;
   const run = async () => {
-    if (!window.confirm(`Delete ${label}? This cannot be undone.`)) return;
+    const ok = await ask({ title: 'Delete permanently?', message: `Delete ${label}? This cannot be undone.`, confirmLabel: 'Delete', danger: true });
+    if (!ok) return;
     setBusy(true);
     try { await api.delete(url); onDone?.(); }
-    catch (e) { window.alert(errMsg(e)); }
+    catch (e) { showMessage('Could not delete', errMsg(e)); }
     finally { setBusy(false); }
   };
   return (

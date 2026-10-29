@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Plus, Lock, Trash2 } from 'lucide-react';
 import api, { useApi, can, errMsg } from '../../lib/api.js';
-import { PageHeader, Card, Status, Badge, Modal, inputCls, btnCls, ghostBtn } from '../../components/ui.jsx';
+import { PageHeader, Card, Status, Badge, Modal, ask, inputCls, btnCls, ghostBtn } from '../../components/ui.jsx';
 import PermissionMatrix from '../../components/PermissionMatrix.jsx';
 import { title } from '../../lib/format.js';
 
@@ -45,7 +45,7 @@ export default function Roles() {
   };
 
   const remove = async () => {
-    if (!confirm(`Delete role ${role.name}?`)) return;
+    if (!(await ask({ title: `Delete role ${role.name}?`, message: 'This role will be removed permanently. This cannot be undone.', confirmLabel: 'Delete', danger: true }))) return;
     try {
       await api.delete(`/roles/${role.id}`);
       setSel(null);

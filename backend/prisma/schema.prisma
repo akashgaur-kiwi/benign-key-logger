@@ -148,6 +148,7 @@ model User {
   appRole           AppRole?              @relation(fields: [appRoleId], references: [id])
   accessExpiresAt   DateTime?
   tokenVersion      Int                   @default(0)
+  mustChangePassword Boolean              @default(false)
   lastLoginAt       DateTime?
   failedLogins      Int                   @default(0)
   lockedUntil       DateTime?

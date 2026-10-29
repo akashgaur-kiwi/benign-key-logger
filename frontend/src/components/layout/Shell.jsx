@@ -98,7 +98,9 @@ export default function Shell() {
         <main className="flex-1 overflow-y-auto p-6">
           <Outlet />
         </main>
-        {pw && <ChangePassword onClose={() => setPw(false)} />}
+        {user?.mustChangePassword
+          ? <ChangePassword forced onClose={() => {}} />
+          : pw && <ChangePassword onClose={() => setPw(false)} />}
       </div>
     </div>
   );
@@ -203,7 +205,8 @@ function NavItem({ to, icon, label, badge }) {
   );
 }
 
-function ChangePassword({ onClose }) {
+// `forced`: the password was set by an admin (or is the default), so the user can't dismiss this.
+function ChangePassword({ onClose, forced }) {
   const [f, setF] = useState({ currentPassword: '', newPassword: '', confirm: '' });
   const [err, setErr] = useState('');
   const [done, setDone] = useState(false);
@@ -228,12 +231,13 @@ function ChangePassword({ onClose }) {
         </>
       ) : (
         <form onSubmit={submit} className="space-y-3">
+          {forced && <p className="text-xs text-amber-700">Your password was set by an admin. Choose your own password to continue.</p>}
           <input className={inputCls} type="password" placeholder="Current password" value={f.currentPassword} onChange={set('currentPassword')} required />
           <input className={inputCls} type="password" placeholder="New password (8+ chars, letter and number)" value={f.newPassword} onChange={set('newPassword')} required />
           <input className={inputCls} type="password" placeholder="Confirm new password" value={f.confirm} onChange={set('confirm')} required />
           {err && <div className="text-xs text-rose-600">{err}</div>}
           <div className="flex justify-end gap-2">
-            <button type="button" onClick={onClose} className="px-3 py-1.5 text-xs text-slate-500">Cancel</button>
+            {!forced && <button type="button" onClick={onClose} className="px-3 py-1.5 text-xs text-slate-500">Cancel</button>}
             <button className={btnCls}>Update</button>
           </div>
         </form>

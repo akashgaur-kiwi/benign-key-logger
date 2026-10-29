@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Search, UserPlus, Copy, Check } from 'lucide-react';
 import api, { useApi, can, getUser, errMsg } from '../../lib/api.js';
-import { PageHeader, Card, Table, Tabs, Status, Badge, Modal, DeleteButton, inputCls, btnCls, ghostBtn } from '../../components/ui.jsx';
+import { PageHeader, Card, Table, Tabs, Status, Badge, Modal, DeleteButton, ask, inputCls, btnCls, ghostBtn } from '../../components/ui.jsx';
 import PermissionMatrix from '../../components/PermissionMatrix.jsx';
 import { title, fmtWhen } from '../../lib/format.js';
 
@@ -24,7 +24,15 @@ export default function Users() {
   const editor = !!can('USER_MANAGEMENT', 'EDIT');
 
   const act = async (u, op, label) => {
-    if (['revoke', 'reject', 'suspend'].includes(op) && !confirm(`${label} ${u.fullName}?`)) return;
+    if (['revoke', 'reject', 'suspend'].includes(op) && !(await ask({
+      title: `${label} ${u.fullName}?`,
+      message: {
+        suspend: 'They will be blocked from signing in until restored. Their data is kept.',
+        revoke: 'They will be permanently blocked from signing in. Only an approver can reactivate them.',
+        reject: 'Their access request will be rejected.'
+      }[op],
+      confirmLabel: label, danger: true
+    }))) return;
     try {
       const { data: r } = await api.post(`/users/${u.id}/${op}`);
       const url = r.link || r.resetLink;
@@ -42,7 +50,7 @@ export default function Users() {
   return (
     <div className="space-y-6">
       <PageHeader eyebrow="Administration" title="Users & access" sub="Invite people, approve access and control what each person can do.">
-        {can('USER_MANAGEMENT', 'CREATE') && <button onClick={() => setInviting(true)} className={btnCls}><UserPlus size={14} /> Invite user</button>}
+        {can('USER_MANAGEMENT', 'CREATE') && <button onClick={() => setInviting(true)} className={btnCls}><UserPlus size={14} /> Add user</button>}
       </PageHeader>
 
       {notice && <div className="text-xs bg-slate-100 text-slate-700 rounded-lg p-3 flex justify-between">{notice}<button onClick={() => setNotice('')}>✕</button></div>}
@@ -128,7 +136,7 @@ function LinkModal({ user, url, kind, emailed, onClose }) {
       {kind === 'Password' ? (
         <p className="text-xs text-slate-600">
           {user.fullName} can sign in with <b>{user.email}</b> and the default password below.
-          {user.status !== 'ACTIVE' && ' An admin must approve the account first.'} Ask them to change it from their profile.
+          {user.status !== 'ACTIVE' && ' An admin must approve the account first.'} They will be asked to choose their own password on first sign-in.
         </p>
       ) : <>
       <p className={`text-xs font-semibold ${emailed ? 'text-emerald-600' : 'text-amber-600'}`}>
@@ -203,14 +211,16 @@ function Invite({ roles, users, onClose, onDone }) {
   const submit = async e => {
     e.preventDefault();
     try {
-      const { data } = await api.post('/users/invite', { ...f, appRoleId: roleIdFor(roles, f) || undefined, accessExpiresAt: f.accessExpiresAt || undefined });
+      const { data } = await api.post('/users/invite', { ...f, appRoleId: roleIdFor(roles, f) || undefined, accessExpiresAt: f.accessExpiresAt || undefined,
+        // Approvers' new users can sign in right away; anyone else's wait for approval.
+        preApprove: !!can('USER_MANAGEMENT', 'APPROVE') });
       onDone(data);
     } catch (e) {
       setErr(errMsg(e));
     }
   };
   return (
-    <Modal title="Invite user" onClose={onClose}>
+    <Modal title="Add user" onClose={onClose}>
       <form onSubmit={submit} className="space-y-3">
         <input className={inputCls} placeholder="Full name" value={f.fullName} onChange={set('fullName')} required />
         <input className={inputCls} type="email" placeholder="Work email" value={f.email} onChange={set('email')} required />
@@ -219,7 +229,7 @@ function Invite({ roles, users, onClose, onDone }) {
         {err && <div className="text-xs text-rose-600">{err}</div>}
         <div className="flex justify-end gap-2">
           <button type="button" onClick={onClose} className="px-3 py-1.5 text-xs text-slate-500">Cancel</button>
-          <button className={btnCls}>Create invite</button>
+          <button className={btnCls}>Create user</button>
         </div>
       </form>
     </Modal>
