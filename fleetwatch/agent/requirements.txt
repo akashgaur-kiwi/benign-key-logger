@@ -1,5 +1,0 @@
-requests>=2.31
-psutil>=5.9
-pywin32>=306
-mss>=9.0        ; only needed if screenshot_seconds > 0
-Pillow>=10.0    ; only needed if screenshot_seconds > 0
